@@ -1,0 +1,24 @@
+#!/bin/sh -e
+
+sourcevm="$1"
+projectdir="$2"
+
+if [ ! -d "$projectdir" ]; then
+  echo "usage: $0 source-vm project-dir"
+  echo
+  echo "project-dir must be a directory"
+  exit 1
+fi
+
+srcd="$HOME/QubesIncoming/$sourcevm/$projectname/"
+projectdir=$(cd "$projectdir" && pwd)
+projectname="$(basename "$projectdir")"
+
+if [ ! -d  "$srcd" ]; then
+  echo "error: soruce dir is missing: $HOME/QubesIncoming/$sourcevm/$projectname"
+  echo "first send the project to this VM: qvm-send-project $(hostname) /path/to/project"
+  exit 1
+fi
+
+rsync -va --cvs-exclude "$HOME/QubesIncoming/$sourcevm/$projectname/" "$projectdir"
+rm -fr "$HOME/QubesIncoming/$sourcevm/$projectname/"

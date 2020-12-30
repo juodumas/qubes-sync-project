@@ -1,0 +1,22 @@
+#!/bin/sh -e
+
+targetvm="$1"
+projectdir="$2"
+
+if [ ! -d "$projectdir" ]; then
+  echo "usage: $0 target-vm project-dir"
+  echo
+  echo "project-dir must be a directory"
+  exit 1
+fi
+
+projectdir=$(cd "$projectdir" && pwd)
+projectname="$(basename "$projectdir")"
+tmpd=$(mktemp -d)
+
+cleanup() { rm -fr "$tmpd"; }
+trap cleanup EXIT
+
+rsync -va --cvs-exclude "$projectdir/" "$tmpd/$projectname"
+/usr/lib/qubes/qrexec-client-vm "$targetvm" qubes.Filecopy /usr/lib/qubes/qfile-agent "$tmpd/$projectname"
+echo "Project copied to ~/QubesIncoming/$(hostname)/$projectname on $targetvm"
